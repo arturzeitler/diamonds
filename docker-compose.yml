@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  batch_train:
+    container_name: batch_train
+    build:
+      context: ./training/
+      dockerfile: Dockerfile
+    env_file:
+      - ./.env
+    volumes:
+      - ./training/dataset:/dataset

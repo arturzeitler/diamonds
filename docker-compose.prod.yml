@@ -1,0 +1,21 @@
+version: '3.8'
+
+services:
+  api:
+    container_name: api
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    ports:
+      - 5001:5000
+
+  tf_serve:
+    container_name: bertbc
+    build:
+      context: ./model/
+      dockerfile: Dockerfile
+    ports:
+      - 8500:8500
+      - 8501:8501
+    environment:
+      - MODEL_NAME=bertbc
