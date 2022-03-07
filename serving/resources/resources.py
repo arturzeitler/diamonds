@@ -12,14 +12,6 @@ log = logging.getLogger(__name__)
 
 SERVER_URL = os.environ['TF_URL']
 
-TOPICS = {
-    0: 'Business',
-    1: 'Entertainment',
-    2: 'Politics',
-    3: 'Sport',
-    4: 'Tech'
-}
-
 class Health(Resource):
 
     def get(self):
@@ -41,18 +33,16 @@ class Predict(Resource):
                 raise KeyError
         except KeyError:
             return {'status': 'No "input" key in JSON'}, HTTPStatus.BAD_REQUEST
-        if isinstance(posted['input'], str) == False:
-            log.info('Provided input is indeed of type String')
-            return {'status': '"input" key does not return string'}, HTTPStatus.BAD_REQUEST
+        for item in posted['input']:
+            if (list(item) == ['carat', 'clarity', 'color', 'cut', 'depth', 'table', 'x', 'y', 'z']) == False:
+                return {"status": "Wrong keys in at least one of the inputs"}, HTTPStatus.BAD_REQUEST
         jsn = json.dumps({
-            'signature_name': 'serving_default',
-            'inputs': posted,
+            "signature_name": "serving_default",
+            "instances": posted['input'],
         })
         response = requests.post(SERVER_URL, data=jsn)
         log.info("POST request sent")
         response.raise_for_status()
-        preds = response.json()['outputs'][0]
-        max_val = max(preds)
-        max_index = preds.index(max_val)
-        log.info("Prediction " + TOPICS[max_index])
-        return {'status': TOPICS[max_index]}, HTTPStatus.OK
+        preds = response.json()['predictions']
+        log.info("Predictions " + preds)
+        return {'predictions': preds}, HTTPStatus.OK
