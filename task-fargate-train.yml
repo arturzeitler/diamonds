@@ -64,7 +64,12 @@ Resources:
         - FARGATE
       ExecutionRoleArn:
         Fn::ImportValue: !Sub ${EnvironmentName}:ECSTaskExecutionRole
-      TaskRoleArn: 'arn:aws:iam::834458757077:role/DiamondsS3Role'
+      TaskRoleArn: 
+        Fn::Join:
+          - ""
+          - - 'arn:aws:iam::'
+            - !Ref AWS::AccountId
+            - ':role/DiamondsS3Role'
       ContainerDefinitions:
         - Name: 'Diamonds-batch-train'
           Cpu: !Ref 'ContainerCpu'

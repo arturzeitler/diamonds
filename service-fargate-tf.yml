@@ -23,7 +23,7 @@ Parameters:
     Description: How much memory in megabytes to give the container
   Path:
     Type: String
-    Default: "/v1/models/bertbc:predict"
+    Default: "/v1/models/diamonds:predict"
     Description: A path on the load balancer that this service
                  should be connected to. Use * to send all load balancer
                  traffic to this service.
@@ -88,12 +88,12 @@ Resources:
             Fn::Join:
               - ""
               - - !Ref AWS::AccountId
-                - '.dkr.ecr.us-east-2.amazonaws.com/bertbc_tf_serve'
+                - '.dkr.ecr.us-east-2.amazonaws.com/diamonds_tf_serve'
           PortMappings:
             - ContainerPort: !Ref 'ContainerPort'
           Environment:
             - Name: MODEL_NAME
-              Value: bertbc
+              Value: diamonds
           LogConfiguration:
             LogDriver: 'awslogs'
             Options:
@@ -139,7 +139,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
       HealthCheckIntervalSeconds: 300
-      HealthCheckPath: /v1/models/bertbc:predict
+      HealthCheckPath: /v1/models/diamonds:predict
       HealthCheckProtocol: HTTP
       HealthCheckTimeoutSeconds: 5
       HealthyThresholdCount: 2

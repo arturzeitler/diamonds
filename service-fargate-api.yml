@@ -93,7 +93,7 @@ Resources:
             Fn::Join:
               - ""
               - - !Ref AWS::AccountId
-                - '.dkr.ecr.us-east-2.amazonaws.com/bertbc_api'
+                - '.dkr.ecr.us-east-2.amazonaws.com/diamonds_api'
           PortMappings:
             - ContainerPort: !Ref 'ContainerPort'
           Environment:
@@ -102,7 +102,7 @@ Resources:
                 Fn::Join:
                   - ""
                   - - Fn::ImportValue: !Sub ${EnvironmentName}:InternalUrl
-                    - '/v1/models/bertbc:predict'
+                    - '/v1/models/diamonds:predict'
           LogConfiguration:
             LogDriver: 'awslogs'
             Options:

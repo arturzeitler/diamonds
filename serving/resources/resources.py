@@ -44,5 +44,5 @@ class Predict(Resource):
         log.info("POST request sent")
         response.raise_for_status()
         preds = response.json()['predictions']
-        log.info("Predictions " + preds)
+        log.info("POST response received")
         return {'predictions': preds}, HTTPStatus.OK
