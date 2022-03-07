@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+ # api:
+ #   container_name: api
+ #   build:
+ #     context: ./app
+ #     dockerfile: Dockerfile
+ #   volumes:
+ #     - ./app/resources:/resources
+ #     - ./app/tests:/tests
+ #   ports:
+ #     - 5001:5000
+ #   environment: 
+ #     - TF_URL=http://tf_serve:8501/v1/models/diamonds:predict
+
+  tf_serve:
+    container_name: diamonds
+    build:
+      context: ./model/
+      dockerfile: Dockerfile
+    volumes:
+      - ./model/diamonds:/models/diamonds
+    ports:
+      - 8500:8500
+      - 8501:8501
+    environment:
+      - MODEL_NAME=diamonds

@@ -2,6 +2,7 @@ import os
 import zipfile
 import logging
 import sys
+import shutil
 
 import boto3
 import botocore
@@ -209,8 +210,10 @@ dia_model.save(saved_serve_path)
 dia_model.compile(loss=loss_fn, optimizer=optimizer)
 tf.keras.models.save_model(dia_model, filepath='./full_model.h5')
 
-with zipfile.ZipFile('./weights.zip', 'w') as zipf:
-    zipf.write(saved_serve_path)
+#with zipfile.ZipFile('./weights.zip', 'w') as zipf:
+#    zipf.write(saved_serve_path)
+
+shutil.make_archive('weights', 'zip', saved_serve_path)
 
 with zipfile.ZipFile('./model.zip', 'w') as zipf:
     zipf.write('./full_model.h5')
