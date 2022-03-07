@@ -1,3 +1,4 @@
+import csv
 import os
 import zipfile
 import logging
@@ -18,8 +19,8 @@ log.info("Logger created")
 # doanload data
 
 bucket_name = 'diamonds-ml-project' 
-zip_name = 'diamonds1.zip'
-csv_name = 'diamonds1.csv' 
+#zip_name = 'diamonds2.zip'
+csv_name = 'diamonds2.csv' 
 dataset_fldr = os.path.join('./', 'dataset')
 zip_model = 'model.zip'
 model_flag = None
@@ -27,24 +28,33 @@ saved_serve_path = os.path.join('./diamonds', '0001')
 checkpoint_path = os.path.join('./checkpoints', 'best_epoch_weights.ckpt')
 log.info("starting download")
 
-session = boto3.Session(
-    aws_access_key_id=os.environ['aws_access_key_id'],
-   aws_secret_access_key=os.environ['aws_secret_access_key']
-)
-#Then use the session to get the resource
-s3 = session.resource('s3')
-
 try:
-    s3.Bucket(bucket_name).download_file(zip_name, './dataset/diamonds1.zip')
+    s3_client = boto3.client(
+        's3',
+        aws_access_key_id=os.environ['aws_access_key_id'],
+        aws_secret_access_key=os.environ['aws_secret_access_key']
+    )
+except KeyError:
+    s3_client = boto3.client(
+        's3',
+    )
+
+with open(os.path.join(dataset_fldr, csv_name), 'wb') as data:
+    s3_client.download_fileobj(bucket_name, csv_name, data)
+'''
+try:
+    s3.Bucket(bucket_name).download_file(csv_name, './dataset/' + csv_name)
     log.info('data download done')
 except botocore.exceptions.ClientError as e:
     if e.response['Error']['Code'] == "404":
-        log.info('Bucket ' + bucket_name + ' with key ' + zip_name + ' does not exist')
+        log.info('Bucket ' + bucket_name + ' with key ' + csv_name + ' does not exist')
     else:
         raise
-
+'''
 try:
-    s3.Bucket(bucket_name).download_file(zip_model, './model.zip')
+    #s3.Bucket(bucket_name).download_file(zip_model, './model.zip')
+    with open('./model.zip', 'wb') as data:
+        s3_client.download_fileobj(bucket_name, zip_model, data)
     model_flag = 1
     with zipfile.ZipFile(os.path.join(zip_model),"r") as zip_ref:
         zip_ref.extractall('./')
@@ -55,11 +65,13 @@ except botocore.exceptions.ClientError as e:
     else:
         raise
 
+
+
 log.info("download successful - unzipping")
 
-# unzip data
-with zipfile.ZipFile(os.path.join(dataset_fldr, zip_name),"r") as zip_ref:
-    zip_ref.extractall(os.path.join(dataset_fldr))
+# unzip data if needed
+#with zipfile.ZipFile(os.path.join(dataset_fldr, zip_name),"r") as zip_ref:
+#    zip_ref.extractall(os.path.join(dataset_fldr))
 
 log.info("unzipped - starting training")
 
@@ -147,7 +159,7 @@ else:
     optimizer = tf.keras.optimizers.Adam(learning_rate=init_lr)
     log.info('New model and optimizer instantiated')
 
-epochs = 2
+epochs = 5
 loss_fn = tf.keras.losses.MeanSquaredError()
 train_acc_metric = tf.keras.metrics.MeanSquaredError()
 val_acc_metric = tf.keras.metrics.MeanSquaredError()
@@ -220,11 +232,7 @@ with zipfile.ZipFile('./model.zip', 'w') as zipf:
 
 # send to s3
 
-s3_client = boto3.client(
-    's3',
-    aws_access_key_id=os.environ['aws_access_key_id'],
-    aws_secret_access_key=os.environ['aws_secret_access_key']
-)
+
 with open('./weights.zip', "rb") as f:
     s3_client.upload_fileobj(f, bucket_name, 'weights.zip')
 

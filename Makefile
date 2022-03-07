@@ -1,11 +1,57 @@
 up-local-train:
 	docker-compose -f docker-compose.localtrain.yml up --build
 
+up-aws-train:
+	docker-compose -f docker-compose.awstrain.yml up -d --build
+
 up-local-serve:
 	docker-compose -f docker-compose.localserve.yml up --build
 
 tests:
 	docker-compose -f docker-compose.localserve.yml run --rm --no-deps --entrypoint=pytest api /tests/
+
+create-vpc:
+	aws cloudformation create-stack --stack-name vpc --template-body file://cf-public-private-vpc.yml --parameters ParameterKey=EnvironmentName,ParameterValue=production --on-failure DO_NOTHING
+
+delete-vpc:
+	aws cloudformation delete-stack --stack-name vpc
+
+create-ecscluster:
+	aws cloudformation create-stack --stack-name ecs-cluster --template-body file://cf-ecs-cluster.yml --parameters ParameterKey=EnvironmentName,ParameterValue=production --on-failure DO_NOTHING --capabilities CAPABILITY_IAM
+
+delete-ecscluster:
+	aws cloudformation delete-stack --stack-name ecs-cluster
+
+create-train-task:
+	aws cloudformation create-stack --stack-name ecs-train --template-body file://task-fargate-train.yml --parameters ParameterKey=EnvironmentName,ParameterValue=production --on-failure DO_NOTHING --capabilities CAPABILITY_NAMED_IAM
+
+delete-train-task:
+	aws cloudformation delete-stack --stack-name ecs-train
+
+create-alb-public:
+	aws cloudformation create-stack --stack-name alb-public --template-body file://cf-alb-external.yml --parameters ParameterKey=EnvironmentName,ParameterValue=production --on-failure DO_NOTHING
+
+delete-alb-public:
+	aws cloudformation delete-stack --stack-name alb-public
+
+create-alb-private:
+	aws cloudformation create-stack --stack-name alb-private --template-body file://cf-alb-internal.yml --parameters ParameterKey=EnvironmentName,ParameterValue=production --on-failure DO_NOTHING
+
+delete-alb-private:
+	aws cloudformation delete-stack --stack-name alb-private
+
+create-api-service:
+	aws cloudformation create-stack --stack-name ecs-api --template-body file://service-fargate-api.yml --parameters ParameterKey=EnvironmentName,ParameterValue=production --on-failure DO_NOTHING
+
+delete-api-service:
+	aws cloudformation delete-stack --stack-name ecs-api
+
+create-tf-service:
+	aws cloudformation create-stack --stack-name ecs-tf --template-body file://service-fargate-tf.yml --parameters ParameterKey=EnvironmentName,ParameterValue=production --on-failure DO_NOTHING
+
+delete-tf-service:
+	aws cloudformation delete-stack --stack-name ecs-tf
+
 
 post-local-api:
 	curl -H 'Content-Type: application/json' -d '{"input": [{"carat": [1.41], \
