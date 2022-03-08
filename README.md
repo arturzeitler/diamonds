@@ -19,10 +19,10 @@ During serving a flask api sits behind a public load balancer and sends correctl
 
 ## Demonstration
 AWS
-![plot](./.demo-aws.png)
+![plot](./demo-aws.png)
 
 Local
-![plot](./.demo-local.png)
+![plot](./demo-local.png)
 
 ## Requirements
 
