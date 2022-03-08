@@ -160,6 +160,7 @@ Example logs
 #### Tensorflow Serving
 
 Receives data to predict and serves predictions.
+To build the Tensorflow Serving image, you have to download the [model weights](https://diamonds-ml-project.s3.us-east-2.amazonaws.com/weights.zip) and extract the zip's contents into ./model/diamonds, such that the folder named after the version number, i.e. 0001, is located in ./model/diamonds/0001.
 
 Example logs
 ![plot](./tf-serve-logs.png)
