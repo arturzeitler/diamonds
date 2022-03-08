@@ -15,6 +15,8 @@ To deploy your AWS User requires the necessary permissions the deploy the specif
 During training, the batch training container downloads a csv from a S3 bucket, and checks whether it can download and instantiate a trained model from the same S3 bucket. If it cannot find a trained model it trains a new one on the csv data.
 After training it stores the model once without its optimizer, for serving, and once with its optimizer weights such that it can continue training on a new dataset. 
 
+S3 is an appropiate place to store a trained model, since it allows file versioning.
+
 During serving a flask api sits behind a public load balancer and sends correctly formated incoming diamond price post requests to the Tensorflow Serving model, sitting behind a private load balancer, and returns its resoponse to the client.
 
 ## Demonstration
