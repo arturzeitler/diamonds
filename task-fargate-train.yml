@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Deploy a service on AWS Fargate, hosted in a public subnet, and accessible via a public load balancer.
+Description: Deploy a service on AWS Fargate, hosted in a private subnet
 Parameters:
   EnvironmentName:
     Type: String
@@ -84,4 +84,4 @@ Resources:
             Options:
               awslogs-group: !Sub ${EnvironmentName}-service-${ServiceName}
               awslogs-region: !Ref 'AWS::Region'
-              awslogs-stream-prefix: ${ServiceName}
+              awslogs-stream-prefix: !Sub ${ServiceName}
