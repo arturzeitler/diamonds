@@ -133,8 +133,11 @@ A fitting alternative would be to trigger it once a new training csv is uploaded
 However, AWS is currently migrating this functionality from CloudWatch Events to Eventbridge, hence it was not easily available.
 
 Schedule job via console
+(1/3)
 ![plot](./schedule-batch-1.png)
+(2/3)
 ![plot](./schedule-batch-2.png)
+(3/3)
 ![plot](./schedule-batch-3.png)
 
 Example logs
