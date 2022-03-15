@@ -4,6 +4,7 @@ model/diamonds
 ***.tar.gz
 .DS_Store
 ***.zip
+***.csv
 .env
 
 ### Byte-compiled / optimized / DLL files

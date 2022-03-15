@@ -7,6 +7,7 @@ RUN pip install -r /requirements.txt
 RUN pip install -e ./dia_train
 
 RUN mkdir /checkpoints
+RUN mkdir /dataset
 RUN mkdir -p /diamonds/0001
 
 CMD ["/run.py"]
