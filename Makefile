@@ -73,7 +73,7 @@ post-aws-api:
 "table": [59.0], \
 "x": [7.95], \
 "y": [6.0], \
-"z": [5.55]}]}' -X POST http://alb-p-Publi-4QW7LRNCVV99-2035073095.us-east-2.elb.amazonaws.com/predict
+"z": [5.55]}]}' -X POST http://alb-p-Publi-MQE3P0VPB9YB-1935233254.us-east-2.elb.amazonaws.com/predict
 
 post-local-api:
 	curl -H 'Content-Type: application/json' -d '{"input": [{"carat": [1.41], \
