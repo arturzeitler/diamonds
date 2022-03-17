@@ -4,7 +4,6 @@ WORKDIR /
 RUN python -m pip install --upgrade pip
 
 RUN pip install -r /requirements.txt
-RUN pip install -e ./dia_train
 
 RUN mkdir /checkpoints
 RUN mkdir /dataset

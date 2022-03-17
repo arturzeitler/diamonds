@@ -127,7 +127,6 @@ Validation accuracy is logged to CloudWatch and can be used to compare model evo
 
 ##### Improvements
 
-- Normally, the training would be put into the package. However, this repository focuses more on the deployment-side. The package dia_train can be used for that in the future.
 - Passing arguments to the container run, e.g. csv-file name, number of epochs, etc.
 - Define triggering as api call, either imperatively or declaratively
 

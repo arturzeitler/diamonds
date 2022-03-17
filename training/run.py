@@ -1,4 +1,3 @@
-import csv
 import os
 import zipfile
 import logging
@@ -19,7 +18,6 @@ log.info("Logger created")
 # doanload data
 
 bucket_name = 'diamonds-ml-project' 
-#zip_name = 'diamonds2.zip'
 csv_name = 'diamonds2.csv' 
 dataset_fldr = os.path.join('./', 'dataset')
 zip_model = 'model.zip'
@@ -41,18 +39,18 @@ except KeyError:
 
 with open(os.path.join(dataset_fldr, csv_name), 'wb') as data:
     s3_client.download_fileobj(bucket_name, csv_name, data)
-'''
+
 try:
-    s3.Bucket(bucket_name).download_file(csv_name, './dataset/' + csv_name)
-    log.info('data download done')
+    with open(os.path.join(dataset_fldr, csv_name), 'wb') as data:
+        s3_client.download_fileobj(bucket_name, csv_name, data)
+    log.info('Found csv on S3')
 except botocore.exceptions.ClientError as e:
     if e.response['Error']['Code'] == "404":
         log.info('Bucket ' + bucket_name + ' with key ' + csv_name + ' does not exist')
     else:
         raise
-'''
+
 try:
-    #s3.Bucket(bucket_name).download_file(zip_model, './model.zip')
     with open('./model.zip', 'wb') as data:
         s3_client.download_fileobj(bucket_name, zip_model, data)
     model_flag = 1
@@ -65,15 +63,7 @@ except botocore.exceptions.ClientError as e:
     else:
         raise
 
-
-
-log.info("download successful - unzipping")
-
-# unzip data if needed
-#with zipfile.ZipFile(os.path.join(dataset_fldr, zip_name),"r") as zip_ref:
-#    zip_ref.extractall(os.path.join(dataset_fldr))
-
-log.info("unzipped - starting training")
+log.info("download successful")
 
 # preprocess data for model
 SEED = 23
@@ -135,21 +125,17 @@ dia_preprocessing = tf.keras.Model(inputs, preprocessed_inputs_cat)
 
 # define model
 
-
 def dia_model(preprocessing_head, inputs):
     body = tf.keras.Sequential([
         tf.keras.layers.Dense(64),
         tf.keras.layers.Dense(1)
     ])
-
     preprocessed_inputs = preprocessing_head(inputs)
     result = body(preprocessed_inputs)
     model = tf.keras.Model(inputs, result)
-
     return model
 
 if model_flag:
-    #dia_model = dia_model(dia_preprocessing, inputs)
     dia_model = tf.keras.models.load_model('./full_model.h5')
     optimizer = dia_model.optimizer
     log.info('Trained model and optimizer initialized')
@@ -164,7 +150,6 @@ loss_fn = tf.keras.losses.MeanSquaredError()
 train_acc_metric = tf.keras.metrics.MeanSquaredError()
 val_acc_metric = tf.keras.metrics.MeanSquaredError()
 temp_val_acc = np.inf
-#full_model_path = os.path.join('./full_model.h5')
 
 # train
 @tf.function
@@ -208,9 +193,7 @@ for epoch in range(epochs):
     if temp_val_acc > val_acc:
         log.info('New validation acc %.4f better than prior best %.4f' % (float(val_acc), float(temp_val_acc)))
         temp_val_acc = val_acc
-        #dia_model.optimizer = optimizer
         dia_model.save_weights(checkpoint_path)
-        #tf.saved_model.save(dia_model, filepath=full_model_path)
         log.info('saved!')
     else:
         log.info('Validation acc did not improve - best %.4f' % (float(temp_val_acc)))
@@ -222,16 +205,12 @@ dia_model.save(saved_serve_path)
 dia_model.compile(loss=loss_fn, optimizer=optimizer)
 tf.keras.models.save_model(dia_model, filepath='./full_model.h5')
 
-#with zipfile.ZipFile('./weights.zip', 'w') as zipf:
-#    zipf.write(saved_serve_path)
-
 shutil.make_archive('weights', 'zip', saved_serve_path)
 
 with zipfile.ZipFile('./model.zip', 'w') as zipf:
     zipf.write('./full_model.h5')
 
 # send to s3
-
 
 with open('./weights.zip', "rb") as f:
     s3_client.upload_fileobj(f, bucket_name, 'weights.zip')
